@@ -20,9 +20,9 @@ Copy   ``` .env.example ``` to ```.env``` and updated the configurations (mainly
 Run migrations and seeder commands
 
   ```php
-  'php artisan migrate'
+  php artisan migrate
   ```
 
   ```php
-  'php artisan db:seed --class=DishSeeder'
+  php artisan db:seed --class=DishSeeder
   ```
