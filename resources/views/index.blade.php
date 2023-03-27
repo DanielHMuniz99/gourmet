@@ -5,6 +5,7 @@
 
 <link rel="stylesheet" href="{{ URL::asset('css/bootstrap.css') }}" />
 <link rel="stylesheet" href="{{ URL::asset('css/app.css') }}" />
+<link rel="stylesheet" href="{{ URL::asset('css/toastr.css') }}" />
 
 <body>
     <div class="form-card">
@@ -14,3 +15,4 @@
 
 <script src="{{ URL::asset('js/jquery.js') }}"></script>
 <script src="{{ URL::asset('js/app.js') }}"></script>
+<script src="{{ URL::asset('js/toastr.min.js') }}"></script>

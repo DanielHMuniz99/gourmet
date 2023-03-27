@@ -1,10 +1,23 @@
-## Laravel
+## Gourmet Project
 
-1. Run
+PHP 8.1
+
+Laravel 10.0
+
+MySQL
+
+## Installation
+
+Run composer install command
 
   ```php
-  'composer install'
+  composer install
   ```
+
+Copy   ``` .env.example ``` to ```.env``` and updated the configurations (mainly the database configuration)
+
+
+Run migrations and seeder commands
 
   ```php
   'php artisan migrate'

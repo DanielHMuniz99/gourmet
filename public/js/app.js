@@ -39,6 +39,11 @@ function start()
 
 function store(parentId = "", childId = "")
 {
+    if (!$("#name").val()) {
+        toastr.warning("campo obrigatório");
+        return false;
+    }
+
     $.ajax({
         method: "POST",
         url: "/store",
