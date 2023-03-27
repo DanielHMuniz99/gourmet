@@ -1,6 +1,6 @@
 <div class="form">
     <form class="login-form">
-        <p class="message">{{ $dish->getText() }}</p>
+        <p class="message">{{ $dish->getText() }}</p><br>
         @if($dish->getDish() && !$dish->isCorrectAnswer())
             <button class="true btn btn-success" onclick="child({{ $dish->getDish()->id }})">Sim</button>
             <button class="false btn btn-danger" onclick="next({{ $dish->getDish()->id }})">Não</button>
