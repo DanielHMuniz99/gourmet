@@ -26,3 +26,12 @@ Run migrations and seeder commands
   ```php
   php artisan db:seed --class=DishSeeder
   ```
+
+  ```php
+  php artisan key:generate
+  ```
+
+Start the development server
+  ```php
+  php artisan serve
+  ```
