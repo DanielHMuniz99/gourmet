@@ -2,80 +2,33 @@
 
 namespace App\Repositories;
 
-use App\Interfaces\DishRepositoryInterface;
 use App\Models\Dish;
+use App\Repositories\Interfaces\DishRepositoryInterface;
 
-class DishRepository implements DishRepositoryInterface
+class DishRepository extends AbstractRepository implements DishRepositoryInterface
 {
-    protected $text = "";
+    protected $model = Dish::class;
 
-    protected $dish;
-
-    protected $dishFound = true;
-
-    protected $parentId;
-
-    protected $childId;
-
-    protected $correctAnswer = false;
-
-    public function setText(string $text) :void
+    /**
+     * [The first dish has to be 'Massa' but the next one will be returned by DESC order]
+     * 
+     * @param Dish
+     * 
+     * @return Dish
+     */
+    public function getNextByOrder($dish, $mainDefault)
     {
-        $this->text = $text;
+        return $this->model->where("parent_id", $dish->parent_id)
+            ->whereNot("id", $dish->id)
+            ->where("id", ">", $dish->id)
+            ->orderBy("id", "ASC")
+            ->first();
     }
 
-    public function getText() :string
+    public function getChild($id)
     {
-        return $this->text;
-    }
-
-    public function setDish(Dish $dish) :void
-    {
-        $this->dish = $dish;
-    }
-
-    public function getDish()
-    {
-        return $this->dish;
-    }
-
-    public function setDishFound(bool $dishFound) :void
-    {
-        $this->dishFound = $dishFound;
-    }
-
-    public function isDishFound() :bool
-    {
-        return $this->dishFound;
-    }
-
-    public function setParentId($parentId) :void
-    {
-        $this->parentId = $parentId;
-    }
-
-    public function getParentId()
-    {
-        return $this->parentId;
-    }
-
-    public function setChildId($childId) :void
-    {
-        $this->childId = $childId;
-    }
-
-    public function getChildId()
-    {
-        return $this->childId;
-    }
-
-    public function setCorrectAnswer(bool $correctAnswer) :void
-    {
-        $this->correctAnswer = $correctAnswer;
-    }
-
-    public function isCorrectAnswer() :bool
-    {
-        return $this->correctAnswer;
+        return $this->model->where("parent_id", $id)
+            ->orderBy("id", "ASC")
+            ->first();   
     }
 }

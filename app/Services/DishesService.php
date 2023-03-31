@@ -3,128 +3,106 @@
 namespace App\Services;
 
 use App\Models\Dish;
+use App\Classes\DishItem;
 use App\Repositories\DishRepository;
 
 class DishesService
 {
-    protected $dishRepository;
+    protected $dish;
 
     protected $defaultFirstDish;
 
-    public function __construct()
+    public function __construct($dish)
     {
-        $this->dishRepository = new DishRepository();
+        $this->dish = $dish;
         $this->defaultFirstDish = config("global.defaultFirstDish");
     }
 
     /**
      * @param Dish
      * 
-     * @return DishRepository
+     * @return DishItem
      */
-    public function getFirst(Dish $dish) :DishRepository
+    public function getFirst() :DishItem
     {
-        $newDish = $dish->first();
-        $this->dishRepository->setText(trans("messages.question", ['name' => $newDish->name]));
-        $this->dishRepository->setDish($newDish);
-        return $this->dishRepository;
+        $newDish = $this->dish->first();
+        $text = trans("messages.question", ['name' => $newDish->name]);
+        $dishItem = new DishItem($newDish, $text);
+        return $dishItem;
     }
 
     /**
      * @param Dish
      * 
-     * @return DishRepository
+     * @return DishItem
      */
-    public function getNext(Dish $dish) :DishRepository
+    public function getNext() :DishItem
     {
-        $newDish = $this->getNextByOrder($dish);
+        $dishItem = new DishItem();
+        $dishRepository = new DishRepository();
+        $newDish = $dishRepository->getNextByOrder($this->dish, $this->defaultFirstDish);
 
         if (!$newDish) {
-            $this->dishRepository->setText(trans("messages.not_found"));
-            $this->dishRepository->setDishFound(false);
-            $this->dishRepository->setParentId($dish->parent_id);
-            return $this->dishRepository;
+            $dishItem->setText(trans("messages.not_found"));
+            $dishItem->setParentId($this->dish->parent_id);
+            return $dishItem;
         }
 
-        $this->dishRepository->setText(trans("messages.question", ['name' => $newDish->name]));
-        $this->dishRepository->setDish($newDish);
-        return $this->dishRepository;
+        $dishItem->setText(trans("messages.question", ['name' => $newDish->name]));
+        $dishItem->setDish($newDish);
+        return $dishItem;
     }
 
     /**
      * @param Dish
      * 
-     * @return DishRepository
+     * @return DishItem
      */
-    public function getChild(Dish $dish) :DishRepository
+    public function getChild() :DishItem
     {
-        $newDish = Dish::where("parent_id", $dish->id)
-            ->orderBy("id", "DESC")
-            ->first();   
+        $dishItem = new DishItem();
+        
+        $dishRepository = new DishRepository();
+        $newDish = $dishRepository->getChild($this->dish->id);
 
         if (!$newDish) {
-            $this->dishRepository->setText(trans("messages.correct_answer"));
-            $this->dishRepository->setCorrectAnswer(true);
-            return $this->dishRepository;
+            $dishItem->setText(trans("messages.correct_answer"));
+            $dishItem->setCorrectAnswer(true);
+            return $dishItem;
         }
 
-        $this->dishRepository->setText(trans("messages.question", ['name' => $newDish->name]));
-        $this->dishRepository->setDish($newDish);
+        $dishItem->setText(trans("messages.question", ['name' => $newDish->name]));
+        $dishItem->setDish($newDish);
 
-        return $this->dishRepository;
+        return $dishItem;
     }
 
     /**
-     * @param Dish
-     * 
-     * @return DishRepository
+     * @return DishItem
      */
-    public function newDish(Dish $dish) :DishRepository
+    public function newDish() :DishItem
     {
-        $this->dishRepository->setText(trans("messages.new_dish", ['name' => $dish->name]));
-        $this->dishRepository->setDish($dish);
-        $this->dishRepository->setParentId($dish->parent_id);
-
-        return $this->dishRepository;   
+        $text = trans("messages.new_dish", ['name' => $this->dish->name]);
+        $dishItem = new DishItem($this->dish, $text);
+        $dishItem->setParentId($this->dish->parent_id);
+        return $dishItem;
     }
 
     /**
-     * @param Dish
-     * 
-     * @return DishRepository
+     * @return DishItem
      */
-    public function loadDish(Dish $dish) :DishRepository
+    public function loadDish() :DishItem
     {
-        $this->dishRepository->setDish($dish);
-        $this->dishRepository->setParentId($dish->parent_id);
-        $this->dishRepository->setChildId($dish->id);
-        $parent = $this->getNextByOrder($dish);
+        $dishRepository = new DishRepository();
+        $parent = $dishRepository->getNextByOrder($this->dish, $this->defaultFirstDish);
 
-        $this->dishRepository->setText(trans("messages.new_dish", ["new" => $dish->name, "old" => $parent->name]));
+        $text = trans("messages.new_dish", ["new" => isset($this->dish->name) ? $this->dish->name : '', "old" => isset($parent->name) ? $parent->name : '']);
+        $dishItem = new DishItem($this->dish, $text);
 
-        return $this->dishRepository;
-    }
+        $dishItem->setParentId($this->dish->parent_id);
+        $dishItem->setChildId($this->dish->id);
 
-    /**
-     * [The first dish has to be 'Massa' but the next one will be returned by DESC order]
-     * 
-     * @param Dish
-     * 
-     * @return Dish
-     */
-    public function getNextByOrder(Dish $dish)
-    {
-        $newDish = Dish::where("parent_id", $dish->parent_id)
-            ->whereNot("id", $dish->id)
-            ->orderBy("id", "DESC");
-            
-        $equal = ">";
-        if ($dish->id != $this->defaultFirstDish) {
-            $equal = "<";
-            $newDish->whereBetween("id", [$this->defaultFirstDish, $dish->id])->whereNot("id", $this->defaultFirstDish);
-        }
-
-        return $newDish->where("id", $equal, $dish->id)->first();
+        return $dishItem;
     }
 }
 
